@@ -63,7 +63,7 @@ jobs:
       - name: test
         env:
           PIPER_INTEGRATION_GITHUB_TOKEN: ${{secrets.PIPER_INTEGRATION_GITHUB_TOKEN}}
-        run: go test -tags=integration -timeout 20m ./integration/...
+        run: docker run -w /test -v `pwd`:/piperbin -v `pwd`/integration/testdata/TestMtaIntegration/maven:/test devxci/mbtci:1.0.14 /piperbin/piper mtaBuild
       - name: update status
         if: success()
         run: |
