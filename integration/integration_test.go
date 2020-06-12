@@ -64,6 +64,9 @@ func copyDir(source string, target string) error {
 	if err = os.MkdirAll(target, sourceInfo.Mode()); err != nil {
 		return err
 	}
+	if err = os.Chown(target, 1000, 1000); err != nil {
+		return err
+	}
 
 	if fileInfo, err = ioutil.ReadDir(source); err != nil {
 		return err
@@ -105,6 +108,9 @@ func copyFile(source, target string) error {
 		return err
 	}
 	if sourceInfo, err = os.Stat(source); err != nil {
+		return err
+	}
+	if err = os.Chown(target, 1000, 1000); err != nil {
 		return err
 	}
 	return os.Chmod(target, sourceInfo.Mode())
