@@ -32,7 +32,11 @@ func TestMavenProject(t *testing.T) {
 	}
 
 	//workaround to use test script util it is possible to set workdir for Exec call
-	testScript := `ls -h /piperbin >test-log.txt 2>&1`
+	testScript := `#!/bin/sh
+cd /test
+ls -hla >test-log.txt 2>&1
+/piperbin/piper mtaBuild
+`
 	ioutil.WriteFile(filepath.Join(tempDir, "runPiper.sh"), []byte(testScript), 0700)
 
 	reqNode := testcontainers.ContainerRequest{
