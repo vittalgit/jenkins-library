@@ -51,7 +51,7 @@ void call(Map parameters = [:]) {
         }
         finally {
             if (publishResults) {
-                testsPublishResults publishMap
+                testsPublishResults script: script
             }
         }
     }
