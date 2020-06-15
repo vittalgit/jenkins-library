@@ -73,6 +73,7 @@ void call(Map parameters = [:], stepName, metadataFile, List credentialInfo, fai
             dockerWrapper(script, config) {
                 handleErrorDetails(stepName) {
                     credentialWrapper(config, credentialInfo) {
+                        sh "printenv"
                         sh "${piperGoPath} ${stepName}${defaultConfigArgs}${customConfigArg}"
                     }
                     jenkinsUtils.handleStepResults(stepName, failOnMissingReports, failOnMissingLinks)
