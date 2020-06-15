@@ -80,6 +80,9 @@ func runArtifactPrepareVersion(config *artifactPrepareVersionOptions, telemetryD
 		VersionSource:       config.DockerVersionSource,
 	}
 
+	log.Entry().Debugf("globalSettingsFile: %s, m2Path: %s, projectSettingsFile: %s",
+		config.GlobalSettingsFile, config.M2Path, config.ProjectSettingsFile)
+
 	var err error
 	if artifact == nil {
 		artifact, err = versioning.GetArtifact(config.BuildTool, config.FilePath, &artifactOpts, runner)
