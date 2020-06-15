@@ -2,7 +2,9 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/SAP/jenkins-library/pkg/mock"
 	"github.com/SAP/jenkins-library/pkg/versioning"
+	"strings"
 	"testing"
 	"time"
 
@@ -302,7 +304,7 @@ func TestRunArtifactPrepareVersion(t *testing.T) {
 		assert.Equal(t, repo.revisionHash.String(), cpe.git.commitID)
 	})
 
-	t.Run("error - failed to retrive version", func(t *testing.T) {
+	t.Run("error - failed to retrieve version", func(t *testing.T) {
 		config := artifactPrepareVersionOptions{}
 
 		versioningMock := artifactVersioningMock{
@@ -314,7 +316,7 @@ func TestRunArtifactPrepareVersion(t *testing.T) {
 
 	})
 
-	t.Run("error - failed to retrive git commit ID", func(t *testing.T) {
+	t.Run("error - failed to retrieve git commit ID", func(t *testing.T) {
 		config := artifactPrepareVersionOptions{}
 
 		versioningMock := artifactVersioningMock{
@@ -410,6 +412,51 @@ func TestRunArtifactPrepareVersion(t *testing.T) {
 
 		err := runArtifactPrepareVersion(&config, &telemetry.CustomData{}, nil, &versioningMock, nil, &repo, func(r gitRepository) (gitWorktree, error) { return &worktree, nil })
 		assert.Contains(t, fmt.Sprint(err), "failed to push changes for version '1.2.3")
+	})
+
+	t.Run("maven options are passed correctly", func(t *testing.T) {
+		config := artifactPrepareVersionOptions{
+			BuildTool:           "maven",
+			ProjectSettingsFile: "projectSettings.xml",
+			GlobalSettingsFile:  "globalSettings.xml",
+			M2Path:              "m2-path",
+			VersioningType:      "library",
+		}
+
+		cpe := artifactPrepareVersionCommonPipelineEnvironment{}
+
+		worktree := gitWorktreeMock{
+			commitHash: plumbing.ComputeHash(plumbing.CommitObject, []byte{2, 3, 4}),
+		}
+		repo := gitRepositoryMock{}
+
+		expectedParams := []string{
+			"--global-settings", "globalSettings.xml",
+			"--settings", "projectSettings.xml",
+			"-Dmaven.repo.local=m2-path",
+			"--file", "pom.xml",
+			"-Dexpression=project.version",
+			"-DforceStdout",
+			"-q",
+			"-Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn",
+			"--batch-mode",
+			"org.apache.maven.plugins:maven-help-plugin:3.1.0:evaluate",
+		}
+
+		execRunner := mock.ExecMockRunner{
+			StdoutReturn: map[string]string{
+				"mvn " + strings.Join(expectedParams, " "): "1.2.3",
+			},
+		}
+
+		err := runArtifactPrepareVersion(&config, &telemetry.CustomData{}, &cpe, nil, &execRunner, &repo, func(r gitRepository) (gitWorktree, error) { return &worktree, nil })
+		assert.NoError(t, err)
+		if assert.Len(t, execRunner.Calls, 1) {
+			assert.Equal(t, execRunner.Calls[0], mock.ExecCall{
+				Exec:   "mvn",
+				Params: expectedParams,
+			})
+		}
 	})
 }
 
