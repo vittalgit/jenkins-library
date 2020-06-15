@@ -29,7 +29,7 @@ void call(Map parameters = [:], body) {
         .use()
 
     stageLocking(config) {
-        withEnv("STAGE_NAME=${stageName}") {
+        withEnv(["STAGE_NAME=${stageName}"]) {
             def containerMap = ContainerMap.instance.getMap().get(stageName) ?: [:]
             if (Boolean.valueOf(env.ON_K8S) && (containerMap.size() > 0 || config.runStageInPod)) {
                 withEnv(["POD_NAME=${stageName}"]) {
