@@ -452,10 +452,10 @@ func TestRunArtifactPrepareVersion(t *testing.T) {
 		err := runArtifactPrepareVersion(&config, &telemetry.CustomData{}, &cpe, nil, &execRunner, &repo, func(r gitRepository) (gitWorktree, error) { return &worktree, nil })
 		assert.NoError(t, err)
 		if assert.Len(t, execRunner.Calls, 1) {
-			assert.Equal(t, execRunner.Calls[0], mock.ExecCall{
+			assert.Equal(t, mock.ExecCall{
 				Exec:   "mvn",
 				Params: expectedParams,
-			})
+			}, execRunner.Calls[0])
 		}
 	})
 }
