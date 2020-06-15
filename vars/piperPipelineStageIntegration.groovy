@@ -46,7 +46,6 @@ void call(Map parameters = [:]) {
         try {
             if (config.npmExecuteScripts) {
                 publishResults = true
-                echo env.STAGE_NAME
                 npmExecuteScripts script: script
             }
         }
