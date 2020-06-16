@@ -74,8 +74,10 @@ def stashStageFiles(Script script, String stageName) {
 }
 
 def unstashStageFiles(Script script, String stageName, List stashContent = []) {
+    script.echo script.commonPipelineEnvironment.configuration.stageStashes.toString()
     stashContent += script.commonPipelineEnvironment.configuration.stageStashes?.get(stageName)?.unstash ?: []
 
+    script.echo "Stash: " + stashContent.toString()
     script.deleteDir()
     unstashAll(stashContent)
 
