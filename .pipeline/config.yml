@@ -1,2 +1,3 @@
 general:
   buildTool: 'npm'
+  gitSshKeyCredentialsId: 'credentials-id-in-jenkins'
